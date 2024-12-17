@@ -36,7 +36,6 @@ func main() {
 
 func getUsers() []*model.Match {
 	return []*model.Match{
-		{RecipientUserId: 1, ActorUserId: 2, Status: 1, CreatedAt: time.Now()},
 		{RecipientUserId: 1, ActorUserId: 3, Status: 2, CreatedAt: time.Now()},
 		{RecipientUserId: 1, ActorUserId: 4, Status: 0, CreatedAt: time.Now()},
 		{RecipientUserId: 1, ActorUserId: 5, Status: 0, CreatedAt: time.Now()},

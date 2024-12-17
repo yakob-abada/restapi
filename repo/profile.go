@@ -15,6 +15,7 @@ func NewProfile(db *gorm.DB) *Profile {
 	}
 }
 
+// Explore is return a list of profiles that matches users criteria and hasn't been liked already by the user OR has been not matched nor unmatched to eachother.
 func (p *Profile) Explore(userId int, paginatedReq *PaginatedRequest) ([]*model.Profile, error) {
 	if paginatedReq == nil {
 		paginatedReq = DefaultPaginatedRequest()
@@ -30,7 +31,10 @@ func (p *Profile) Explore(userId int, paginatedReq *PaginatedRequest) ([]*model.
 		"ST_Distance_Sphere("+
 		"point(actor.lat, actor.long), point(profiles.lat, profiles.long)"+
 		") <= explores.distance_radius", userId).
-		Find(&profiles).Error
+		Joins("LEFT JOIN matches AS likers ON likers.actor_user_id = ? AND likers.recipient_user_id = profiles.id", userId).
+		Joins("LEFT JOIN matches AS matched ON matched.actor_user_id = profiles.id AND matched.recipient_user_id = ? AND matched.status in (1, 2)", userId).
+		Where("(likers.recipient_user_id != profiles.id OR likers.recipient_user_id IS NULL) AND (matched.actor_user_id != profiles.id OR matched.actor_user_id IS NULL)").
+		Group("profiles.id").Find(&profiles).Error
 
 	if err != nil {
 		return nil, err
